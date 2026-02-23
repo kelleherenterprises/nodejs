@@ -1,10 +1,9 @@
 const express = require("express");
-const OpenAI = require("openai");
+const OpenAI = require("openai").default;
 
 const app = express();
 app.use(express.json());
 
-// Railway provides PORT automatically
 const PORT = process.env.PORT || 3000;
 
 const client = new OpenAI({
