@@ -1,21 +1,36 @@
-const express = require('express');
-const path = require('path');
-const indexRouter = require('./routes/index');
+const express = require("express");
+const OpenAI = require("openai");
 
 const app = express();
-const PORT = 3000;
+app.use(express.json());
 
-// Serve static files from the "public" directory
-app.use(express.static(path.join(__dirname, 'public')));
+// Railway provides PORT automatically
+const PORT = process.env.PORT || 3000;
 
-// Use the router for handling routes
-app.use('/', indexRouter);
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
-// Catch-all route for handling 404 errors
-app.use((req, res, next) => {
-    res.status(404).sendFile(path.join(__dirname, 'views', '404.html'));
-  });
+app.get("/", (req, res) => {
+  res.send("Bot backend is running ✅");
+});
+
+app.post("/chat", async (req, res) => {
+  try {
+    const { message } = req.body;
+
+    const response = await client.responses.create({
+      model: "gpt-4.1-mini",
+      input: message,
+    });
+
+    res.json({ reply: response.output_text });
+  } catch (err) {
+    console.error("OpenAI error:", err);
+    res.status(500).json({ error: "Bot error" });
+  }
+});
 
 app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}/`);
+  console.log(`Server running on port ${PORT}`);
 });
