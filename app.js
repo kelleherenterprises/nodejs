@@ -20,6 +20,10 @@ app.post("/chat", async (req, res) => {
   try {
     const { message } = req.body;
 
+    if (!message) {
+      return res.status(400).json({ error: "No message provided" });
+    }
+
     const response = await client.responses.create({
       model: "gpt-4.1-mini",
       input: message,
@@ -28,11 +32,11 @@ app.post("/chat", async (req, res) => {
     const text = response.output_text || "No response";
     res.json({ reply: text });
   } catch (err) {
-    console.error("OpenAI error:", err);
+    console.error(err);
     res.status(500).json({ error: "Server error" });
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log("Server running on port " + PORT);
 });
